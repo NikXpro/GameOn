@@ -130,3 +130,12 @@ function hideError(element) {
   }
   element.classList.remove("error");
 }
+
+// form submission
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  if (validate()) {
+    // Si le formulaire est valide, vous pouvez le soumettre ici
+    console.log("Formulaire soumis avec succès");
+  }
+});
