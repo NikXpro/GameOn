@@ -34,3 +34,21 @@ function closeModal() {
 function validate() {
   let isValid = true;
 
+function displayError(element, message) {
+  let errorDiv = element.nextElementSibling;
+  if (!errorDiv || !errorDiv.classList.contains("error-message")) {
+    errorDiv = document.createElement("div");
+    errorDiv.className = "error-message";
+    element.parentNode.insertBefore(errorDiv, element.nextSibling);
+  }
+  errorDiv.textContent = message;
+  element.classList.add("error");
+}
+
+function hideError(element) {
+  const errorDiv = element.nextElementSibling;
+  if (errorDiv && errorDiv.classList.contains("error-message")) {
+    errorDiv.remove();
+  }
+  element.classList.remove("error");
+}
