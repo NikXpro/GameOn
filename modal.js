@@ -19,6 +19,7 @@ modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
 
 // launch modal form
 function launchModal() {
+  console.log("launchModal");
   modalbg.style.display = "block";
 }
 
@@ -30,79 +31,86 @@ function closeModal() {
   modalbg.style.display = "none";
 }
 
-// form validation
+const formFields = [
+  {
+    id: "first",
+    type: "text",
+    minLength: 2,
+  },
+  {
+    id: "last",
+    type: "text",
+    minLength: 2,
+  },
+  {
+    id: "email",
+    type: "email",
+    regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  },
+  {
+    id: "quantity",
+    type: "number",
+    min: 0,
+  },
+  {
+    id: "location",
+    type: "radio",
+  },
+  {
+    id: "checkbox1",
+    type: "checkbox",
+  },
+];
+
 function validate() {
   let isValid = true;
 
-  // First name validation
-  const firstName = document.getElementById("first");
-  if (firstName.value.trim().length < 2) {
-    isValid = false;
-    displayError(
-      firstName,
-      "Veuillez entrer 2 caractères ou plus pour le champ du prénom."
-    );
-  } else {
-    hideError(firstName);
-  }
-
-  // Last name validation
-  const lastName = document.getElementById("last");
-  if (lastName.value.trim().length < 2) {
-    isValid = false;
-    displayError(
-      lastName,
-      "Veuillez entrer 2 caractères ou plus pour le champ du nom."
-    );
-  } else {
-    hideError(lastName);
-  }
-
-  // Email validation
-  const email = document.getElementById("email");
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.value)) {
-    isValid = false;
-    displayError(email, "Veuillez entrer une adresse email valide.");
-  } else {
-    hideError(email);
-  }
-
-  // Quantity validation
-  const quantity = document.getElementById("quantity");
-  if (quantity.value === "" || isNaN(quantity.value) || quantity.value < 0) {
-    isValid = false;
-    displayError(quantity, "Veuillez entrer un nombre valide.");
-  } else {
-    hideError(quantity);
-  }
-
-  // Location validation
-  const locations = document.querySelectorAll('input[name="location"]');
-  let locationChecked = false;
-  locations.forEach((location) => {
-    if (location.checked) {
-      locationChecked = true;
+  formFields.forEach((field) => {
+    const element = document.getElementById(field.id);
+    if (
+      field.type === "text" &&
+      element.value.trim().length < field.minLength
+    ) {
+      isValid = false;
+      displayError(
+        element,
+        `Veuillez entrer ${field.minLength} caractères ou plus pour ce champ.`
+      );
+    } else if (field.type === "email" && !field.regex.test(element.value)) {
+      isValid = false;
+      displayError(element, "Veuillez entrer une adresse email valide.");
+    } else if (
+      field.type === "number" &&
+      (element.value === "" ||
+        isNaN(element.value) ||
+        element.value < field.min)
+    ) {
+      isValid = false;
+      displayError(element, "Veuillez entrer un nombre valide.");
+    } else if (field.type === "radio") {
+      const radios = document.querySelectorAll(`input[name="${field.id}"]`);
+      let isChecked = false;
+      radios.forEach((radio) => {
+        if (radio.checked) {
+          isChecked = true;
+        }
+      });
+      if (!isChecked) {
+        isValid = false;
+        displayError(radios[0], "Vous devez choisir une option.");
+      } else {
+        hideErrors(radios[0]);
+      }
+    } else if (field.type === "checkbox" && !element.checked) {
+      isValid = false;
+      displayError(
+        element,
+        "Vous devez vérifier que vous acceptez les termes et conditions."
+      );
+    } else {
+      hideErrors(element);
     }
   });
-  if (!locationChecked) {
-    isValid = false;
-    displayError(locations[0], "Vous devez choisir une option.");
-  } else {
-    hideError(locations[0]);
-  }
-
-  // Terms validation
-  const terms = document.getElementById("checkbox1");
-  if (!terms.checked) {
-    isValid = false;
-    displayError(
-      terms,
-      "Vous devez vérifier que vous acceptez les termes et conditions."
-    );
-  } else {
-    hideError(terms);
-  }
 
   if (isValid) {
     closeModal();
@@ -123,8 +131,8 @@ function displayError(element, message) {
   element.classList.add("error");
 }
 
-function hideError(element) {
-  const errorDiv = element.nextElementSibling;
+function hideErrors(element) {
+  let errorDiv = element.nextElementSibling;
   if (errorDiv && errorDiv.classList.contains("error-message")) {
     errorDiv.remove();
   }
