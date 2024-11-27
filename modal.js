@@ -60,6 +60,11 @@ const formFields = [
     id: "checkbox1",
     type: "checkbox",
   },
+  {
+    id: "birthdate",
+    type: "date",
+    minAge: 18,
+  },
 ];
 
 function validate() {
@@ -107,6 +112,31 @@ function validate() {
         element,
         "Vous devez vérifier que vous acceptez les termes et conditions."
       );
+    } else if (field.type === "date") {
+      const birthdate = new Date(element.value);
+      const today = new Date();
+
+      // Vérification si la date est dans le futur
+      if (birthdate > today) {
+        isValid = false;
+        displayError(element, "La date ne peut pas être dans le futur.");
+        return;
+      }
+
+      const age = today.getFullYear() - birthdate.getFullYear();
+      const monthDiff = today.getMonth() - birthdate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthdate.getDate())
+      ) {
+        age--;
+      }
+      if (isNaN(birthdate) || age < field.minAge) {
+        isValid = false;
+        displayError(element, `Vous devez avoir au moins ${field.minAge} ans.`);
+      } else {
+        hideErrors(element);
+      }
     } else {
       hideErrors(element);
     }
